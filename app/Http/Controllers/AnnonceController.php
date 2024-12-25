@@ -10,12 +10,36 @@ use Illuminate\Support\Facades\Auth;
 class AnnonceController extends Controller
 {
     /**
-     * Afficher la liste des annonces publiques.
+     * Afficher la liste des annonces publiques avec recherche et filtrage.
      */
-    public function indexPublic()
+    public function indexPublic(Request $request)
     {
-        $annonces = Annonce::where('statut', 'active')->paginate(10);
-        return view('annonces.index', compact('annonces'));
+        $query = Annonce::where('statut', 'active');
+
+        // Filtrer par type (perdu/retrouvé)
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filtrer par catégorie
+        if ($request->filled('categorie_id')) {
+            $query->where('categorie_id', $request->categorie_id);
+        }
+
+        // Filtrer par lieu
+        if ($request->filled('lieu')) {
+            $query->where('lieu', 'like', '%' . $request->lieu . '%');
+        }
+
+        // Filtrer par date (par exemple, annonces publiées après une certaine date)
+        if ($request->filled('date')) {
+            $query->whereDate('date', '>=', $request->date);
+        }
+
+        $annonces = $query->paginate(10)->withQueryString();
+        $categories = Categorie::all(); // Pour le formulaire de filtrage
+
+        return view('annonces.index', compact('annonces', 'categories'));
     }
 
     /**
@@ -28,12 +52,31 @@ class AnnonceController extends Controller
     }
 
     /**
-     * Afficher la liste des annonces pour l'utilisateur connecté.
+     * Afficher la liste des annonces pour l'utilisateur connecté avec recherche et filtrage.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $annonces = Annonce::where('user_id', Auth::id())->paginate(10);
-        return view('annonces.dashboard', compact('annonces'));
+        $query = Annonce::where('user_id', Auth::id());
+
+        // Filtrer par type (perdu/retrouvé)
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filtrer par catégorie
+        if ($request->filled('categorie_id')) {
+            $query->where('categorie_id', $request->categorie_id);
+        }
+
+        // Filtrer par statut (active/résolue/en attente)
+        if ($request->filled('statut')) {
+            $query->where('statut', $request->statut);
+        }
+
+        $annonces = $query->paginate(10)->withQueryString();
+        $categories = Categorie::all(); // Pour le formulaire de filtrage
+
+        return view('annonces.dashboard', compact('annonces', 'categories'));
     }
 
     /**
@@ -82,7 +125,7 @@ class AnnonceController extends Controller
 
         // Vérifier que l'utilisateur possède l'annonce
         if ($annonce->user_id !== Auth::id()) {
-            return redirect()->route('annonces.index')->with('error', 'Vous n\'êtes pas autorisé à modifier cette annonce.');
+            return redirect()->route('annonces.index')->with('error', 'Vous n’êtes pas autorisé à modifier cette annonce.');
         }
 
         $categories = Categorie::all();
@@ -98,7 +141,7 @@ class AnnonceController extends Controller
 
         // Vérifier que l'utilisateur possède l'annonce
         if ($annonce->user_id !== Auth::id()) {
-            return redirect()->route('annonces.index')->with('error', 'Vous n\'êtes pas autorisé à modifier cette annonce.');
+            return redirect()->route('annonces.index')->with('error', 'Vous n’êtes pas autorisé à modifier cette annonce.');
         }
 
         $request->validate([
@@ -138,7 +181,7 @@ class AnnonceController extends Controller
 
         // Vérifier que l'utilisateur possède l'annonce
         if ($annonce->user_id !== Auth::id()) {
-            return redirect()->route('annonces.index')->with('error', 'Vous n\'êtes pas autorisé à supprimer cette annonce.');
+            return redirect()->route('annonces.index')->with('error', 'Vous n’êtes pas autorisé à supprimer cette annonce.');
         }
 
         // Supprimer l'image si existante

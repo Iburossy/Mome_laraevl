@@ -3,47 +3,75 @@
 @section('title', 'Annonces Publiques')
 
 @section('content')
-    <h1>Annonces Publiques</h1>
+    <h1 class="mb-4">Annonces Publiques</h1>
 
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <form method="GET" action="{{ route('home') }}">
-                <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ request('search') }}">
-                    <button class="btn btn-outline-secondary" type="submit">Rechercher</button>
-                </div>
-            </form>
+    <!-- Formulaire de Recherche et de Filtrage -->
+    <form method="GET" action="{{ route('home') }}" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label for="type" class="form-label">Type</label>
+                <select name="type" id="type" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="perdu" {{ request('type') == 'perdu' ? 'selected' : '' }}>Perdu</option>
+                    <option value="retrouvé" {{ request('type') == 'retrouvé' ? 'selected' : '' }}>Retrouvé</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="categorie_id" class="form-label">Catégorie</label>
+                <select name="categorie_id" id="categorie_id" class="form-select">
+                    <option value="">Toutes</option>
+                    @foreach($categories as $categorie)
+                        <option value="{{ $categorie->id }}" {{ request('categorie_id') == $categorie->id ? 'selected' : '' }}>
+                            {{ $categorie->nom }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="lieu" class="form-label">Lieu</label>
+                <input type="text" name="lieu" id="lieu" class="form-control" value="{{ request('lieu') }}" placeholder="Entrez un lieu">
+            </div>
+            <div class="col-md-3">
+                <label for="date" class="form-label">Depuis le</label>
+                <input type="date" name="date" id="date" class="form-control" value="{{ request('date') }}">
+            </div>
         </div>
-        <div class="col-md-8 text-end">
-            @auth
-                <a href="{{ route('annonces.create') }}" class="btn btn-primary">Déclarer un objet</a>
-            @endauth
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+                <a href="{{ route('home') }}" class="btn btn-secondary">Réinitialiser</a>
+            </div>
         </div>
-    </div>
+    </form>
 
+    <!-- Liste des Annonces en Grille -->
     @if($annonces->count())
         <div class="row">
             @foreach($annonces as $annonce)
-                <div class="col-md-4 mb-4">
+                <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card h-100">
                         @if($annonce->images)
-                            <img src="{{ asset('storage/' . $annonce->images) }}" class="card-img-top" alt="{{ $annonce->titre }}">
+                            <img src="{{ asset('storage/' . $annonce->images) }}" class="card-img-top img-fluid" alt="{{ $annonce->titre }}">
+                        @else
+                            <img src="{{ asset('images/default.png') }}" class="card-img-top img-fluid" alt="Image par défaut">
                         @endif
                         <div class="card-body">
                             <h5 class="card-title">{{ $annonce->titre }}</h5>
                             <p class="card-text">{{ Str::limit($annonce->description, 100) }}</p>
-                            <a href="{{ route('annonces.showPublic', $annonce->id) }}" class="btn btn-primary">Voir Détails</a>
-                        </div>
-                        <div class="card-footer">
-                            <small class="text-muted">{{ $annonce->date->format('d/m/Y') }} à {{ $annonce->lieu }}</small>
+                            <p class="card-text"><small class="text-muted">{{ $annonce->date->format('d/m/Y') }} à {{ $annonce->lieu }}</small></p>
+                            <a href="{{ route('annonces.showPublic', $annonce->id) }}" class="btn btn-primary">Voir Plus</a>
+                            
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
 
-        {{ $annonces->links() }}
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center">
+            {{ $annonces->links() }}
+        </div>
     @else
-        <p>Aucune annonce trouvée.</p>
+        <p class="text-center">Aucune annonce trouvée.</p>
     @endif
 @endsection

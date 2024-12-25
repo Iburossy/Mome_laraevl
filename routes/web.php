@@ -9,6 +9,7 @@ use App\Http\Controllers\CategorieController;
 Route::get('/', [AnnonceController::class, 'indexPublic'])->name('home');
 Route::get('/public-annonces/{id}', [AnnonceController::class, 'showPublic'])->name('annonces.showPublic');
 
+
 // Routes protégées par authentification
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
