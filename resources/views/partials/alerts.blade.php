@@ -21,3 +21,4 @@
         </ul>
     </div>
 @endif
+<!-- # The alerts.blade.php file contains the code to display alerts in the application. -->
