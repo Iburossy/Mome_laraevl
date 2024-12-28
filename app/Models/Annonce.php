@@ -13,6 +13,7 @@ class Annonce extends Model
         'type',
         'categorie_id',
         'titre',
+        // 'nom',
         'description',
         'images',
         'date',

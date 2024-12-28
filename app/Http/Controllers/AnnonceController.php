@@ -16,6 +16,14 @@ class AnnonceController extends Controller
     {
         $query = Annonce::where('statut', 'active');
 
+        // Recherche par titre ou nom
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('titre', 'LIKE', "%{$search}%");
+            });
+        }
+
         // Filtrer par type (perdu/retrouvé)
         if ($request->filled('type')) {
             $query->where('type', $request->type);

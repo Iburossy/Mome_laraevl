@@ -15,6 +15,19 @@
         </li>
       </ul>
       <ul class="navbar-nav">
+
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <!-- Liens de navigation gauche -->
+    <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('about') }}">À Propos</a>
+        </li>
+        <!-- Autres liens -->
+    </ul>
+
+</div>
+
         @auth
           <li class="nav-item">
             <span class="nav-link">Bienvenue, {{ Auth::user()->name }}</span>
